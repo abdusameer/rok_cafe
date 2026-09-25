@@ -1,0 +1,51 @@
+# rōk coffee and tea
+
+A one-page, scroll-driven site for rōk coffee and tea (Los Angeles). Plain HTML, CSS and JavaScript in a single
+`index.html`, with media in `assets/`. No framework, no build step.
+
+## What's on the page
+
+- **Hero:** a scroll-scrubbed video of matcha pouring into a rōk cup until it overflows. Scrolling down plays it
+  forward and scrolling up plays it back. With reduced motion turned on, a still hero shows instead and no video is downloaded.
+- **Locations:** a pinned scroll story through the four cafés (Olympic Blvd, Studio City, Silver Lake, Wilshire Blvd),
+  with a route map drawn from their addresses. It falls back to a plain list with reduced motion or on very short screens.
+- **Our story, rōk x Fellow, press, Girls Inc., Uji matcha, FAQs, footer.**
+
+Tested at 21 window sizes, from a 360 px phone to a 2560 px monitor, including short and narrow browser windows.
+
+## Preview locally
+
+The hero video is loaded with `fetch`, which browsers block on `file://` pages. Serve the folder instead:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open http://localhost:8000. Opening `index.html` directly still works, but shows the still hero.
+
+## Imagery
+
+| File | Source |
+|---|---|
+| `assets/loc-*.jpg` | rōk's own storefront photos |
+| `assets/fellow-carter.webp` | Fellow's product photo of the Carter 3-in-1 gift box |
+| `assets/hero-scrub.mp4`, `hero-poster.jpg`, `hero-ending.jpg` | AI-generated with Higgsfield |
+| `assets/drink-*.jpg`, `assets/uji-field.jpg` | AI-generated with Higgsfield, stand-ins for real photos |
+
+To swap in a real photo, replace the file with one of the same name.
+
+## Hosting on GitHub Pages
+
+The site is ready to serve from the repo root. In the repo on GitHub: **Settings → Pages → Build and deployment →
+Source: Deploy from a branch → Branch: `main`, folder `/ (root)` → Save.** It goes live at
+https://abdusameer.github.io/rok_cafe/ a minute or two later.
+
+`.nojekyll` tells GitHub Pages to serve the files exactly as they are. The `og:url` and `og:image` tags
+(marked `DEPLOY STEP` in `index.html`) already point at that address; update them if the site moves to its own domain.
+
+The Fellow product photos in `assets/Web_PDP_*.webp` and `assets/uc_*.webp` are included for later use and are
+not shown on the page yet.
+
+## Still to do
+
+- The **Shop** button links to the home page; point it at the real shop link.
