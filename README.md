@@ -9,7 +9,11 @@ A one-page, scroll-driven site for rōk coffee and tea (Los Angeles). Plain HTML
   forward and scrolling up plays it back. With reduced motion turned on, a still hero shows instead and no video is downloaded.
 - **Locations:** a pinned scroll story through the four cafés (Olympic Blvd, Studio City, Silver Lake, Wilshire Blvd),
   with a route map drawn from their addresses. It falls back to a plain list with reduced motion or on very short screens.
-- **Our story, rōk x Fellow, press, Girls Inc., Uji matcha, FAQs, footer.**
+- **Our story and rōk x Fellow.**
+- **Fellow exploded view:** a pinned, scroll-scrubbed 3D render of the Carter 3-in-1 kit. It lifts out of its box,
+  separates into every part, and the Move Lid is put back together. Color swatches switch between Matte White,
+  Sienna, Smoke Green and Stone Blue without losing your place. Only the chosen color and screen format are downloaded.
+- **Press, Girls Inc., Uji matcha, FAQs, footer.**
 
 Tested at 21 window sizes, from a 360 px phone to a 2560 px monitor, including short and narrow browser windows.
 
@@ -31,6 +35,7 @@ Then open http://localhost:8000. Opening `index.html` directly still works, but 
 | `assets/fellow-carter.webp` | Fellow's product photo of the Carter 3-in-1 gift box |
 | `assets/hero-scrub.mp4`, `hero-poster.jpg`, `hero-ending.jpg` | AI-generated with Higgsfield |
 | `assets/drink-*.jpg`, `assets/uji-field.jpg` | AI-generated with Higgsfield, stand-ins for real photos |
+| `assets/fellow/*` | 3D reconstruction of the Fellow Carter 3-in-1 kit, modeled and rendered in Blender from product photos. Some dimensions are estimated, and the "FELLOW" and "HELLO" prints use a stand-in font |
 
 To swap in a real photo, replace the file with one of the same name.
 

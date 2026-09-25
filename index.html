@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 <style>
-/* Imagery: the loc-*.jpg storefronts are rōk's own photos. The Fellow box is Fellow's product photo. Everything else in assets/ is an
+/* Imagery: the loc-*.jpg storefronts are rōk's own photos. The Fellow box is Fellow's product photo; assets/fellow/ holds our 3D renders of the kit. Everything else in assets/ is an
    AI-generated stand-in made with Higgsfield; to swap in a real photo, replace the file with one of the same name. */
 :root{
   --canvas:#f3f1ec;
@@ -234,6 +234,38 @@ section.block{padding:clamp(72px,11vw,150px) var(--gutter)}
 .fellow .shot img{width:100%;height:100%;object-fit:contain;padding:7%}
 .fellow h2{font-size:clamp(34px,3.6vw,54px);line-height:1.05;margin:10px 0 20px}
 .fellow p{max-width:40ch;color:var(--text-secondary);margin-bottom:28px}
+
+/* Fellow exploded view: a pinned, scroll-scrubbed 3D render in four colorways */
+.fx{position:relative;background:#8f8a82;--navh:80px}
+.fx-track{height:420vh}
+.fx-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#8f8a82}
+.fx-poster,.fx-v{position:absolute;left:0;right:0;bottom:0;top:var(--navh);width:100%;height:calc(100% - var(--navh));object-fit:cover;background-size:cover;background-position:center}
+.fx-v{opacity:0;transition:opacity .45s var(--ease-soft)}
+.fx-v.on{opacity:1}
+.fx-beat{position:absolute;left:var(--gutter);bottom:clamp(24px,7vh,72px);max-width:min(420px,62vw);color:#fbfaf6;opacity:0;text-shadow:0 1px 2px rgba(20,18,15,.6),0 6px 24px rgba(20,18,15,.45)}
+.fx-beat .t{font-size:clamp(20px,2.2vw,32px);line-height:1.15;font-weight:300;margin:6px 0 0}
+.fx-beat ul.t{list-style:none;padding:0;display:grid;gap:2px}
+.fx-colors{position:absolute;right:var(--gutter);bottom:clamp(24px,7vh,72px);display:flex;align-items:center;gap:6px;padding:8px 10px 8px 16px;border-radius:999px;background:rgba(243,241,236,.86);backdrop-filter:blur(8px);color:var(--ink)}
+.fx-colors .fx-color-label{margin-right:6px;white-space:nowrap}
+.fx-colors label{position:relative;display:inline-flex;padding:4px;cursor:pointer;border-radius:50%}
+.fx-colors input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}
+.fx-colors .dot{width:22px;height:22px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(20,18,15,.18);transition:transform .3s var(--ease-out),box-shadow .3s var(--ease-soft)}
+.fx-colors label:hover .dot{transform:scale(1.1)}
+.fx-colors input:checked + .dot{box-shadow:0 0 0 2px #f3f1ec,0 0 0 3.5px var(--ink)}
+.fx-colors input:focus-visible + .dot{outline:2px solid var(--accent);outline-offset:5px}
+@media (pointer:coarse){.fx-colors label{padding:11px}}
+@media (max-width:720px),(max-aspect-ratio:5/4){
+  .fx{--navh:72px}
+  .fx-colors{top:calc(var(--navh) + 14px);bottom:auto;right:50%;transform:translateX(50%);padding:6px 8px 6px 14px}
+  .fx-beat{max-width:calc(100vw - 2 * var(--gutter))}
+}
+@media (prefers-reduced-motion: reduce){
+  .fx-track{height:auto}
+  .fx-stage{position:relative}
+  .fx-v{display:none}
+  .fx-beat{display:none}
+  .fx-beat[data-last]{display:block;opacity:1}
+}
 
 /* Media */
 .media{display:grid;grid-template-columns:minmax(200px,1fr) 3fr;gap:clamp(24px,4vw,64px)}
@@ -513,6 +545,27 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
   </section>
 
+  <section class="fx" id="fellow-explode" aria-label="Carter 3-in-1, every part">
+    <div class="fx-track">
+      <div class="fx-stage">
+        <div class="fx-poster" aria-hidden="true"></div>
+        <video class="fx-v" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+        <video class="fx-v" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+        <div class="fx-beat" data-a="0" data-b="0.16" data-first><span class="mono">In the box</span><p class="t">16 oz Carter Move Mug and three lids.</p></div>
+        <div class="fx-beat" data-a="0.30" data-b="0.62"><span class="mono">Every part</span><ul class="t"><li>Move Lid</li><li>Splash Guard</li><li>Cold Lid + Straw</li><li>Slide Lid</li></ul></div>
+        <div class="fx-beat" data-a="0.62" data-b="0.84"><span class="mono">Assemble</span><p class="t">Splash Guard in, Move Lid on.</p></div>
+        <div class="fx-beat" data-a="0.88" data-b="1" data-last><span class="mono">Ready to go</span><p class="t">Swap to the Cold Lid or Slide Lid any time.</p></div>
+        <div class="fx-colors" role="radiogroup" aria-labelledby="fx-color-label">
+          <span class="fx-color-label mono" id="fx-color-label">Color: <span class="fx-color-name">Matte White</span></span>
+            <label><input type="radio" name="fx-color" value="matte-white" checked><span class="dot" style="--c:#eeedeb" aria-hidden="true"></span><span class="sr-only">Matte White</span></label>
+            <label><input type="radio" name="fx-color" value="sienna"><span class="dot" style="--c:#8e5040" aria-hidden="true"></span><span class="sr-only">Sienna</span></label>
+            <label><input type="radio" name="fx-color" value="smoke-green"><span class="dot" style="--c:#748d7e" aria-hidden="true"></span><span class="sr-only">Smoke Green</span></label>
+            <label><input type="radio" name="fx-color" value="stone-blue"><span class="dot" style="--c:#34485a" aria-hidden="true"></span><span class="sr-only">Stone Blue</span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="block fellow reveal" aria-labelledby="fellow-h">
     <div class="shot" data-part><img src="assets/fellow-carter.webp" alt="The Fellow Carter 3-in-1 gift box, open, holding the mug, two lids and a straw" loading="lazy" width="1200" height="1502"></div>
     <div data-part>
@@ -585,7 +638,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
   <div class="base">
     <span>© 2026 rōk coffee and tea. Los Angeles.</span>
-    <span>The hero video and drink photos on this site are AI-generated.</span>
+    <span>The hero video and drink photos on this site are AI-generated. The Fellow 3D view is a reconstruction from product photos.</span>
   </div>
 </footer>
 
@@ -931,6 +984,93 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     scrollTo({ top: Math.round(top), behavior: 'smooth' });
   }));
   applyStoryMode();
+
+  /* ---------- Fellow exploded view: scroll-scrubbed, four colorways ----------
+     Two stacked video elements: a new colour loads into the hidden one, seeks to the current frame,
+     then crossfades in, so switching colour never jumps. Only the chosen colour and format are fetched. */
+  const fx = document.getElementById('fellow-explode');
+  if (fx) {
+    const fxTrack = fx.querySelector('.fx-track'), fxStage = fx.querySelector('.fx-stage');
+    const fxPoster = fx.querySelector('.fx-poster'), fxVids = [...fx.querySelectorAll('.fx-v')];
+    const fxName = fx.querySelector('.fx-color-name');
+    const fxBeats = [...fx.querySelectorAll('.fx-beat')].map(el => ({ el, a: +el.dataset.a, b: +el.dataset.b, first: 'first' in el.dataset, last: 'last' in el.dataset, op: -1 }));
+    const fxNarrow = matchMedia('(max-width: 720px), (max-aspect-ratio: 5/4)');
+    const fxReduce = matchMedia('(prefers-reduced-motion: reduce)');
+    let fxColor = 'matte-white', fxActive = 0, fxVisible = false, fxStarted = false, fxToken = 0;
+    const fxFile = kind => `assets/fellow/${fxColor}-${fxNarrow.matches ? 'mobile' : 'desktop'}${kind}`;
+    const fxBlobs = new Map();
+    const fxBlob = async u => {
+      if (!fxBlobs.has(u)) fxBlobs.set(u, fetch(u).then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); }).then(b => URL.createObjectURL(b)));
+      return fxBlobs.get(u);
+    };
+    const fxProgress = () => { const range = fxTrack.offsetHeight - innerHeight; return range > 0 ? clamp(-fxTrack.getBoundingClientRect().top / range, 0, 1) : 0; };
+    const seekState = fxVids.map(() => ({ busy: false, pending: null }));
+    function fxSeek(i, t) {
+      const v = fxVids[i], st = seekState[i];
+      if (!v.duration) return;
+      if (st.busy) { st.pending = t; return; }
+      st.busy = true; v.currentTime = Math.min(t, v.duration - 0.04);
+    }
+    fxVids.forEach((v, i) => {
+      v.addEventListener('seeked', () => { const st = seekState[i]; st.busy = false; if (st.pending !== null) { const t = st.pending; st.pending = null; fxSeek(i, t); } });
+      v.addEventListener('error', () => { seekState[i].busy = false; seekState[i].pending = null; });
+    });
+    function fxCaptions(p) {
+      for (const b of fxBeats) {
+        const f = Math.min(0.03, (b.b - b.a) / 4);
+        const op = (p < b.a && !b.first) ? 0 : (b.first ? 1 : smoothstep(p, b.a, b.a + f)) * (b.last ? 1 : 1 - smoothstep(p, b.b - f, b.b));
+        if (Math.abs(op - b.op) > 0.004) { b.op = op; b.el.style.opacity = op.toFixed(3); }
+      }
+    }
+    let fxTarget = 0, fxShown = 0, fxRaf = null, fxLast = 0;
+    function fxTick(now) {
+      const dt = Math.min(100, now - (fxLast || now)); fxLast = now;
+      fxShown += (fxTarget - fxShown) * (1 - Math.pow(1 - 0.15, dt / 16.667));
+      if (Math.abs(fxTarget - fxShown) < 0.0005) { fxShown = fxTarget; fxRaf = null; fxLast = 0; fxStage.dataset.animationActive = '0'; }
+      else fxRaf = requestAnimationFrame(fxTick);
+      const v = fxVids[fxActive]; if (v.duration) fxSeek(fxActive, fxShown * v.duration);
+      fxCaptions(fxShown);
+    }
+    function fxOnScroll() {
+      fxTarget = fxProgress();
+      if (fxRaf === null && fxVisible) { fxRaf = requestAnimationFrame(fxTick); fxStage.dataset.animationActive = '1'; }
+    }
+    async function fxLoad() {
+      const token = ++fxToken, next = fxVids[fxActive].src ? 1 - fxActive : fxActive, v = fxVids[next];
+      if (!fxVids[fxActive].src) fxPoster.style.backgroundImage = `url('${fxFile('-first.jpg')}')`;
+      try {
+        const src = await fxBlob(fxFile('.mp4'));
+        if (token !== fxToken) return;
+        v.src = src; v.load();
+        const p = v.play(); if (p) p.then(() => v.pause()).catch(() => {});        // iOS paints seeked frames only after a play
+        v.addEventListener('loadeddata', () => {
+          if (token !== fxToken) return;
+          v.pause(); fxSeek(next, fxShown * v.duration);
+          v.addEventListener('seeked', () => {
+            if (token !== fxToken) return;
+            v.classList.add('on'); if (next !== fxActive) fxVids[fxActive].classList.remove('on');
+            fxActive = next;
+          }, { once: true });
+        }, { once: true });
+      } catch (e) { fxPoster.style.backgroundImage = `url('${fxFile('-poster.jpg')}')`; }
+    }
+    function fxStill() { fxPoster.style.backgroundImage = `url('${fxFile('-poster.jpg')}')`; }
+    fx.querySelectorAll('input[name="fx-color"]').forEach(inp => inp.addEventListener('change', () => {
+      fxColor = inp.value; fxName.textContent = inp.parentElement.querySelector('.sr-only').textContent;
+      if (fxReduce.matches) fxStill(); else if (fxStarted) fxLoad();
+    }));
+    function fxStart() {
+      if (fxReduce.matches) { fxStill(); fxCaptions(1); return; }
+      if (!fxStarted) { fxStarted = true; fxLoad(); }
+      addEventListener('scroll', fxOnScroll, { passive: true }); addEventListener('resize', fxOnScroll, { passive: true }); fxOnScroll();
+    }
+    new IntersectionObserver(es => {
+      fxVisible = es[0].isIntersecting;
+      if (fxVisible) fxStart();
+    }, { rootMargin: '100% 0px' }).observe(fxTrack);
+    fxReduce.addEventListener('change', () => { if (fxReduce.matches) { removeEventListener('scroll', fxOnScroll); fxStill(); } else if (fxVisible) fxStart(); });
+    fxNarrow.addEventListener('change', () => { fxVids.forEach(v => { v.classList.remove('on'); v.removeAttribute('src'); }); fxActive = 0; if (fxStarted && !fxReduce.matches) fxLoad(); else fxStill(); });
+  }
 
   /* ---------- Missing images fall back to the panel tone, never a broken icon ---------- */
   document.querySelectorAll('main img').forEach(img => img.addEventListener('error', () => { img.style.visibility = 'hidden'; }));
