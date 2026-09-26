@@ -6,7 +6,8 @@ A one-page, scroll-driven site for rōk coffee and tea (Los Angeles). Plain HTML
 ## What's on the page
 
 - **Hero:** a scroll-scrubbed video of matcha pouring into a rōk cup until it overflows. Scrolling down plays it
-  forward and scrolling up plays it back. With reduced motion turned on, a still hero shows instead and no video is downloaded.
+  forward and scrolling up plays it back. Phones get a square centre cut of the same clip (`hero-scrub-portrait.mp4`),
+  which decodes about twice as fast. With reduced motion turned on, a still hero shows instead and no video is downloaded.
 - **Locations:** a pinned scroll story through the four cafés (Olympic Blvd, Studio City, Silver Lake, Wilshire Blvd),
   with a route map drawn from their addresses. It falls back to a plain list with reduced motion or on very short screens.
 - **Our story and rōk x Fellow.**
@@ -15,7 +16,20 @@ A one-page, scroll-driven site for rōk coffee and tea (Los Angeles). Plain HTML
   Sienna, Smoke Green and Stone Blue without losing your place. Only the chosen color and screen format are downloaded.
 - **Press, Girls Inc., Uji matcha, FAQs, footer.**
 
+On touch screens, one swipe moves one step through the hero, the locations, the Fellow view and the press cards: when a
+swipe comes to rest part way through a step, the page glides on to the next one in that direction. Ordinary sections
+scroll freely, and nothing happens while a finger is on the screen.
+
 Tested at 21 window sizes, from a 360 px phone to a 2560 px monitor, including short and narrow browser windows.
+
+## Keeping it smooth
+
+- The scrubbed videos have a keyframe every 4 frames and no B-frames, so any scroll position is only a few decoded
+  frames away. Re-encode new clips the same way (`-g 4 -keyint_min 1 -bf 0 -sc_threshold 0 -movflags +faststart`).
+- Everything that moves while you scroll (the location wipes, the press deck and its dimming) moves with transforms and
+  opacity on layers that are already painted, so nothing is repainted frame by frame.
+- Photos are sized for the largest screen that shows them (drinks 1200 px wide, Uji field 1600 px) and saved as
+  baseline JPEGs, which decode faster than WebP.
 
 ## Preview locally
 
@@ -33,7 +47,7 @@ Then open http://localhost:8000. Opening `index.html` directly still works, but 
 |---|---|
 | `assets/loc-*.jpg` | rōk's own storefront photos |
 | `assets/fellow-carter.webp` | Fellow's product photo of the Carter 3-in-1 gift box |
-| `assets/hero-scrub.mp4`, `hero-poster.jpg`, `hero-ending.jpg` | AI-generated with Higgsfield |
+| `assets/hero-scrub.mp4`, `hero-scrub-portrait.mp4`, `hero-poster.jpg`, `hero-ending.jpg` | AI-generated with Higgsfield |
 | `assets/drink-*.jpg`, `assets/uji-field.jpg` | AI-generated with Higgsfield, stand-ins for real photos |
 | `assets/fellow/*` | 3D reconstruction of the Fellow Carter 3-in-1 kit, modeled and rendered in Blender from product photos. Some dimensions are estimated, and the "FELLOW" and "HELLO" prints use a stand-in font |
 

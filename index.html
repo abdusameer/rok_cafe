@@ -55,11 +55,11 @@ p{margin:0}
 .mono{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .mono.brand,footer h3.brand{text-transform:none;letter-spacing:.04em}
 
-/* The environment: one fixed layer of grain and slow mist behind everything */
-.env{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.env::before{content:"";position:absolute;inset:-20%;background:radial-gradient(40% 35% at 30% 30%,rgba(111,143,58,.07),transparent 70%),radial-gradient(35% 40% at 75% 70%,rgba(111,143,58,.05),transparent 70%);animation:drift 72s var(--ease-soft) infinite alternate;animation-delay:-20s}
+/* The environment: one fixed layer of grain and mist behind everything. Static on purpose: an endless
+   animation here would make the browser redraw the whole screen every frame, even when nothing moves. */
+.env{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;contain:strict}
+.env::before{content:"";position:absolute;inset:-20%;background:radial-gradient(40% 35% at 30% 30%,rgba(111,143,58,.07),transparent 70%),radial-gradient(35% 40% at 75% 70%,rgba(111,143,58,.05),transparent 70%);transform:translate3d(-1.3%,-.9%,0) rotate(1.7deg)}
 .env::after{content:"";position:absolute;inset:0;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-@keyframes drift{from{transform:translate3d(-3%,-2%,0) rotate(0)}to{transform:translate3d(3%,2%,0) rotate(6deg)}}
 
 /* Nav */
 .nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--gutter);transition:background .5s var(--ease-soft),box-shadow .5s var(--ease-soft)}
@@ -116,9 +116,13 @@ p{margin:0}
 /* Phones, portrait tablets and squarish windows: the pour plays in the top of the screen and the
    words sit on the page colour beneath it (picture first, words under, like the live site). */
 @media (max-width: 720px), (max-aspect-ratio: 5/4){
-  .stage{height:100vh;height:100dvh;background:var(--canvas)}
-  .poster,.stage video{bottom:auto;height:68%;-webkit-mask-image:linear-gradient(to bottom,#000 84%,transparent);mask-image:linear-gradient(to bottom,#000 84%,transparent)}
-  .scrim{bottom:auto;height:68%}
+  /* svh, not dvh: a stage sized to the dynamic viewport re-lays out on every frame while the phone's
+     address bar slides away. The fade into the page is painted by the scrim instead of masking the video,
+     which keeps the video on the fast path (same result, since the stage behind it is plain canvas). */
+  .hero{background:var(--canvas)}
+  .stage{background:var(--canvas)}
+  .poster,.stage video{bottom:auto;height:68%}
+  .scrim{bottom:auto;height:calc(68% + 4px);background:linear-gradient(to bottom,rgba(243,241,236,.55),rgba(243,241,236,0) 22%),linear-gradient(to bottom,rgba(243,241,236,0) 84%,var(--canvas) calc(100% - 5px))}   /* runs a few px past the video so its edge never peeks out */
   .band,.band.left,.band.right{left:var(--gutter);right:var(--gutter);top:65%;width:auto;text-shadow:none}
   .band::before{display:none}
   .band .kicker{margin-bottom:8px}
@@ -130,7 +134,8 @@ p{margin:0}
 }
 /* Taller phones and tablets: give the pour more of the screen */
 @media (max-width: 720px) and (min-height: 720px), (max-aspect-ratio: 5/4) and (min-height: 720px){
-  .poster,.stage video,.scrim{height:74%}
+  .poster,.stage video{height:74%}
+  .scrim{height:calc(74% + 4px)}
   .band,.band.left,.band.right{top:71%}
 }
 
@@ -147,7 +152,7 @@ p{margin:0}
 @media (prefers-reduced-motion: reduce) and (max-width: 720px), (prefers-reduced-motion: reduce) and (max-aspect-ratio: 5/4){
   .stage{height:auto;overflow:visible;background:var(--canvas)}
   .poster{position:relative;inset:auto;height:70vh;height:70svh;background-size:auto 118%;background-position:50% 50%;-webkit-mask-image:none;mask-image:none}
-  .scrim{bottom:auto;height:70vh;height:70svh}
+  .scrim{bottom:auto;height:70vh;height:70svh;background:linear-gradient(to bottom,rgba(243,241,236,.55),rgba(243,241,236,0) 22%)}
   .static-copy{position:relative;left:auto;top:auto;width:auto;padding:28px var(--gutter) 8px;text-shadow:none}
   .static-copy::before{display:none}
 }
@@ -187,6 +192,7 @@ section.block{padding:clamp(72px,11vw,150px) var(--gutter)}
 .locs-index .n{font-size:11px;font-weight:400}
 .locs-index .bar{position:absolute;left:0;right:0;bottom:-1px;height:1px;overflow:hidden}
 .locs-index .bar i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(var(--fill,0))}
+.locs.pinned .locs-index .bar i{will-change:transform}
 .locs-map{display:block;width:100%;max-width:300px;color:var(--ink);overflow:visible}
 .locs-map .ghost{fill:none;stroke:var(--line-strong);stroke-width:.7;stroke-dasharray:1.5 3}
 .locs-map .route{fill:none;stroke:var(--accent);stroke-width:1.4;stroke-linecap:round}
@@ -198,7 +204,8 @@ section.block{padding:clamp(72px,11vw,150px) var(--gutter)}
 .locs-cap{margin-top:-18px;font-size:11px;color:var(--text-secondary)}
 .locs-chapters{grid-area:chapters;display:grid;gap:clamp(48px,7vw,96px)}
 .loc-ch{display:grid;grid-template-columns:1.7fr 1fr;gap:clamp(20px,3vw,48px);align-items:center}
-.loc-fig{margin:0;position:relative;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:var(--panel)}
+.loc-fig{margin:0;position:relative;aspect-ratio:16/9;border-radius:6px;overflow:hidden}
+.loc-rv{position:absolute;inset:0;overflow:hidden;border-radius:inherit;background:var(--panel)}
 .loc-fig img{width:100%;height:100%;object-fit:cover}
 .loc-eye{color:var(--text-secondary);margin-bottom:14px}
 .loc-info h3{font-size:clamp(26px,2.4vw,36px);line-height:1.1}
@@ -213,10 +220,13 @@ section.block{padding:clamp(72px,11vw,150px) var(--gutter)}
 .locs.pinned .locs-stage{position:sticky;top:0;height:100vh;height:100svh;padding:clamp(88px,12vh,124px) var(--gutter) clamp(28px,5vh,56px);grid-template-rows:auto minmax(0,1fr);overflow:hidden}
 .locs.pinned .locs-chapters{position:relative;display:block;min-height:0}
 .locs.pinned .loc-ch{position:absolute;inset:0}
-.locs.pinned .loc-fig{width:min(100%,calc((100vh - 250px) * 16 / 9));width:min(100%,calc((100svh - 250px) * 16 / 9));clip-path:inset(0 0 calc((1 - var(--in,1)) * 100%) 0 round 6px)}
-.locs.pinned .loc-fig img{transform:scale(calc(1.1 - .1 * var(--in,1) + .05 * var(--out,0)))}
-.locs.pinned .loc-info{opacity:var(--io,1);transform:translateY(calc((1 - var(--ii,1)) * 28px - var(--out,0) * 16px))}
-.locs.pinned .loc-ch.live .loc-fig,.locs.pinned .loc-ch.live .loc-fig img,.locs.pinned .loc-ch.live .loc-info{will-change:transform,opacity,clip-path}
+.locs.pinned .loc-fig{width:min(100%,calc((100vh - 250px) * 16 / 9));width:min(100%,calc((100svh - 250px) * 16 / 9))}
+/* The photo wipes in from the top: the wrapper slides down into the frame while the photo inside
+   slides the opposite way, so it looks like a moving clip edge. Transforms only, so the GPU moves
+   layers that are already painted instead of repainting the photo every frame. */
+.locs.pinned .loc-rv{transform:translateY(calc((var(--in,1) - 1) * 100%));will-change:transform}
+.locs.pinned .loc-fig img{transform:translateY(calc((1 - var(--in,1)) * 100%)) scale(calc(1.1 - .1 * var(--in,1) + .05 * var(--out,0)));will-change:transform}
+.locs.pinned .loc-info{opacity:var(--io,1);transform:translateY(calc((1 - var(--ii,1)) * 28px - var(--out,0) * 16px));will-change:transform,opacity}
 @keyframes panelin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* Story strip */
@@ -295,9 +305,9 @@ section.block{padding:clamp(72px,11vw,150px) var(--gutter)}
 .press.pinned .press-deck{position:relative;display:block;margin-top:52px;min-height:0}   /* room for the stacked cards peeking above */
 .press.pinned .pcard{position:absolute;left:50%;top:0;width:min(1080px,100%);height:100%;max-height:640px;min-height:0;transform-origin:50% 0;
   transform:translateX(-50%) translateY(calc((1 - var(--e,1)) * 115%)) translateY(calc(var(--d,0) * -14px)) scale(calc(1 - var(--d,0) * .045));
-  box-shadow:0 34px 60px -34px rgba(20,18,15,.38);transition:none}
-.press.pinned .pcard::after{content:"";position:absolute;inset:0;background:#141512;opacity:min(.5,calc(var(--d,0) * .18));pointer-events:none}
-.press.pinned .pcard.live{will-change:transform}
+  box-shadow:0 34px 60px -34px rgba(20,18,15,.38);transition:none;will-change:transform}
+/* The dimming veil gets its own layer so fading it never repaints the card underneath */
+.press.pinned .pcard::after{content:"";position:absolute;inset:0;background:#141512;opacity:min(.5,calc(var(--d,0) * .18));pointer-events:none;will-change:opacity}
 
 /* Girls Inc. */
 .girls{background:var(--panel);display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:center}
@@ -514,7 +524,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
         <div class="locs-chapters">
           <article class="loc-ch" id="loc-olympic" aria-labelledby="loc-olympic-h">
-            <figure class="loc-fig"><img src="assets/loc-olympic.jpg" alt="The rōk storefront at 3060 W Olympic Blvd, with patio chairs under the wood-lined entrance" loading="lazy" width="1600" height="900"></figure>
+            <figure class="loc-fig"><div class="loc-rv"><img src="assets/loc-olympic.jpg" alt="The rōk storefront at 3060 W Olympic Blvd, with patio chairs under the wood-lined entrance" loading="lazy" decoding="async" width="1600" height="900"></div></figure>
             <div class="loc-info">
               <p class="loc-eye mono">01 / 04 · Koreatown</p>
               <h3 id="loc-olympic-h">rōk · Koreatown, Olympic Blvd</h3>
@@ -524,7 +534,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
             </div>
           </article>
           <article class="loc-ch" id="loc-studio" aria-labelledby="loc-studio-h">
-            <figure class="loc-fig"><img src="assets/loc-studio-city.jpg" alt="The rōk Studio City café on a corner, with a white awning and green matcha window panels" loading="lazy" width="1280" height="714"></figure>
+            <figure class="loc-fig"><div class="loc-rv"><img src="assets/loc-studio-city.jpg" alt="The rōk Studio City café on a corner, with a white awning and green matcha window panels" loading="lazy" decoding="async" width="1280" height="714"></div></figure>
             <div class="loc-info">
               <p class="loc-eye mono">02 / 04 · Studio City</p>
               <h3 id="loc-studio-h">rōk · Studio City</h3>
@@ -534,7 +544,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
             </div>
           </article>
           <article class="loc-ch" id="loc-silver" aria-labelledby="loc-silver-h">
-            <figure class="loc-fig"><img src="assets/loc-silver-lake.jpg" alt="The rōk Silver Lake shopfront on Sunset Blvd, olive green brick with an open front" loading="lazy" width="1280" height="714"></figure>
+            <figure class="loc-fig"><div class="loc-rv"><img src="assets/loc-silver-lake.jpg" alt="The rōk Silver Lake shopfront on Sunset Blvd, olive green brick with an open front" loading="lazy" decoding="async" width="1280" height="714"></div></figure>
             <div class="loc-info">
               <p class="loc-eye mono">03 / 04 · Silver Lake</p>
               <h3 id="loc-silver-h">rōk · Silver Lake</h3>
@@ -544,7 +554,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
             </div>
           </article>
           <article class="loc-ch" id="loc-wilshire" aria-labelledby="loc-wilshire-h">
-            <figure class="loc-fig"><img src="assets/loc-wilshire.jpg" alt="The rōk walk-up window on Wilshire Blvd, green tiles below and a large rōk painted on the wall" loading="lazy" width="1280" height="714"></figure>
+            <figure class="loc-fig"><div class="loc-rv"><img src="assets/loc-wilshire.jpg" alt="The rōk walk-up window on Wilshire Blvd, green tiles below and a large rōk painted on the wall" loading="lazy" decoding="async" width="1280" height="714"></div></figure>
             <div class="loc-info">
               <p class="loc-eye mono">04 / 04 · Koreatown</p>
               <h3 id="loc-wilshire-h">rōk · Koreatown, Wilshire Blvd</h3>
@@ -559,9 +569,9 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </section>
 
   <section class="story reveal" aria-label="Our name">
-    <figure data-part><img src="assets/drink-1.jpg" alt="Iced matcha latte with a thick green foam top and a slow drip down the side" loading="lazy" width="1200" height="1600"></figure>
-    <figure data-part><img src="assets/drink-2.jpg" alt="A bowl of freshly whisked matcha beside a bamboo whisk" loading="lazy" width="1200" height="1600"></figure>
-    <figure data-part><img src="assets/drink-3.jpg" alt="Two iced matcha drinks on pale stone, seen from above" loading="lazy" width="1200" height="1600"></figure>
+    <figure data-part><img src="assets/drink-1.jpg" alt="Iced matcha latte with a thick green foam top and a slow drip down the side" loading="lazy" decoding="async" width="1200" height="1608"></figure>
+    <figure data-part><img src="assets/drink-2.jpg" alt="A bowl of freshly whisked matcha beside a bamboo whisk" loading="lazy" decoding="async" width="1200" height="1608"></figure>
+    <figure data-part><img src="assets/drink-3.jpg" alt="Two iced matcha drinks on pale stone, seen from above" loading="lazy" decoding="async" width="1200" height="1608"></figure>
     <div class="text" data-part>
       <p class="big">rōk (록/綠): inspired by the Korean word 초록 (chorōk), meaning “green.”</p>
       <p>The color of matcha. The calm of nature. The spirit behind everything we do that we hope to share with you, one cup at a time.</p>
@@ -590,7 +600,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </section>
 
   <section class="block fellow reveal" aria-labelledby="fellow-h">
-    <div class="shot" data-part><img src="assets/fellow-carter.webp" alt="The Fellow Carter 3-in-1 gift box, open, holding the mug, two lids and a straw" loading="lazy" width="1200" height="1502"></div>
+    <div class="shot" data-part><img src="assets/fellow-carter.webp" alt="The Fellow Carter 3-in-1 gift box, open, holding the mug, two lids and a straw" loading="lazy" decoding="async" width="1200" height="1502"></div>
     <div data-part>
       <span class="mono brand">rōk x Fellow</span>
       <h2 id="fellow-h">Carter 3-in-1 Lid System</h2>
@@ -608,28 +618,28 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         </div>
         <div class="press-deck">
           <a class="pcard" href="https://www.instagram.com/p/DR2goIvAcR2/" target="_blank" rel="noopener">
-            <figure class="pcard-img"><img src="assets/press-no3.jpg" alt="Iced matcha latte in a rōk cup with a bamboo whisk behind it" loading="lazy" width="1000" height="1250"></figure>
+            <figure class="pcard-img"><img src="assets/press-no3.jpg" alt="Iced matcha latte in a rōk cup with a bamboo whisk behind it" loading="lazy" decoding="async" width="1000" height="1250"></figure>
             <div class="pcard-body">
               <span class="num">No.3</span>
               <div><p class="t">World’s No.3 Coffee &amp; Tea 2025</p><p class="src mono"><span>Beli</span><span class="arrow" aria-hidden="true">↗</span></p></div>
             </div>
           </a>
           <a class="pcard" href="https://www.theinfatuation.com/los-angeles/guides/best-matcha-los-angeles" target="_blank" rel="noopener">
-            <figure class="pcard-img"><img src="assets/press-best.jpg" alt="A rōk matcha latte with a bright green top on a dark marble table" loading="lazy" width="1000" height="1250"></figure>
+            <figure class="pcard-img"><img src="assets/press-best.jpg" alt="A rōk matcha latte with a bright green top on a dark marble table" loading="lazy" decoding="async" width="1000" height="1250"></figure>
             <div class="pcard-body">
               <span class="num">Best</span>
               <div><p class="t">The Best Matcha Lattes in Los Angeles</p><p class="src mono"><span>The Infatuation</span><span class="arrow" aria-hidden="true">↗</span></p></div>
             </div>
           </a>
           <a class="pcard" href="https://www.instagram.com/p/DR70Q5OEYPU/" target="_blank" rel="noopener">
-            <figure class="pcard-img"><img src="assets/press-no1-beli.jpg" alt="A rōk cup of iced matcha standing on a mound of matcha powder" loading="lazy" width="1000" height="1250"></figure>
+            <figure class="pcard-img"><img src="assets/press-no1-beli.jpg" alt="A rōk cup of iced matcha standing on a mound of matcha powder" loading="lazy" decoding="async" width="1000" height="1250"></figure>
             <div class="pcard-body">
               <span class="num">No.1</span>
               <div><p class="t">No.1 Matcha Spot in Los Angeles</p><p class="src mono"><span>Beli</span><span class="arrow" aria-hidden="true">↗</span></p></div>
             </div>
           </a>
           <a class="pcard" href="http://www.koreatimes.com/article/1567796" target="_blank" rel="noopener">
-            <figure class="pcard-img"><img src="assets/press-no1-koreatimes.jpg" alt="Finished rōk matcha lattes lined up on the pickup counter" loading="lazy" width="1000" height="1250"></figure>
+            <figure class="pcard-img"><img src="assets/press-no1-koreatimes.jpg" alt="Finished rōk matcha lattes lined up on the pickup counter" loading="lazy" decoding="async" width="1000" height="1250"></figure>
             <div class="pcard-body">
               <span class="num">No.1</span>
               <div><p class="t">No.1 Matcha Spot in Los Angeles</p><p class="src mono"><span>The Korea Times</span><span class="arrow" aria-hidden="true">↗</span></p></div>
@@ -646,7 +656,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </section>
 
   <section class="uji reveal" aria-labelledby="uji-h">
-    <div class="field" data-part><img src="assets/uji-field.jpg" alt="Shade-grown tea rows in Uji under soft morning mist" loading="lazy" width="1600" height="1600"></div>
+    <div class="field" data-part><img src="assets/uji-field.jpg" alt="Shade-grown tea rows in Uji under soft morning mist" loading="lazy" decoding="async" width="1600" height="1600"></div>
     <div class="text">
       <div class="kick mono" data-part><span>Uji, Kyoto</span><span class="rule"></span></div>
       <h2 id="uji-h" data-part>UJI MATCHA</h2>
@@ -685,6 +695,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 (() => {
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const smoothstep = (p, e0, e1) => { const t = clamp((p - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+  // Resting points of each pinned story, as fractions of its pinned range (used by touch snapping below)
+  const stops = [];
 
   /* ---------- Split headline text into words (accessible name kept whole) ---------- */
   document.querySelectorAll('[data-split]').forEach(el => {
@@ -708,15 +720,20 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   const ring = document.querySelector('.ring');
   const ringWrap = document.querySelector('.ring-wrap');
   const cue = document.querySelector('.cue');
-  const VIDEO_URL = 'assets/hero-scrub.mp4';
-  const VIDEO_BYTES = 4441608;
+  // Tall screens get a square centre crop of the pour: the edges it drops are never on screen there, and
+  // fewer pixels per frame means each scroll step decodes about twice as fast. Both files have a keyframe
+  // every 4 frames and no B-frames, so any scroll position is at most a few decoded frames away.
+  const heroTall = matchMedia('(max-aspect-ratio: 2/3)');
+  const heroFile = () => heroTall.matches ? { url: 'assets/hero-scrub-portrait.mp4', bytes: 4492453 } : { url: 'assets/hero-scrub.mp4', bytes: 5940623 };
   const bands = [...document.querySelectorAll('.band')].map(el => ({
     el, a: +el.dataset.a, b: +el.dataset.b, first: 'first' in el.dataset, last: 'last' in el.dataset,
     cta: el.querySelector('.cta-row'), op: -1, k: -1, vis: null
   }));
 
+  // Pinned ranges use the sticky stage's own height, not innerHeight: on phones innerHeight grows while the
+  // address bar slides away, which would nudge every scrubbed frame mid-scroll.
   function heroProgress() {
-    const range = hero.offsetHeight - innerHeight;
+    const range = hero.offsetHeight - stage.offsetHeight;
     if (range <= 0) return 0;
     return clamp(-hero.getBoundingClientRect().top / range, 0, 1);
   }
@@ -790,36 +807,50 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     if (started) return; started = true;
     loadHeroBlob().catch(failVideo);
   }
+  let heroToken = 0, heroUrl = null;
   async function loadHeroBlob() {
+    const token = ++heroToken, file = heroFile();
     const ctrl = new AbortController();
     let watchdog = setTimeout(() => ctrl.abort(), 20000);
-    const res = await fetch(VIDEO_URL, { priority: 'low', signal: ctrl.signal });
+    const res = await fetch(file.url, { priority: 'low', signal: ctrl.signal });
     if (!res.ok) throw new Error('video ' + res.status);
-    const total = Number(res.headers.get('Content-Length')) || VIDEO_BYTES;
+    const total = Number(res.headers.get('Content-Length')) || file.bytes;
     const reader = res.body.getReader();
     const chunks = []; let got = 0, lastRing = 0;
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
+      if (token !== heroToken) { ctrl.abort(); clearTimeout(watchdog); return; }
       clearTimeout(watchdog); watchdog = setTimeout(() => ctrl.abort(), 20000);
       chunks.push(value); got += value.length;
       const frac = Math.min(1, got / total), now = performance.now();
       if (now - lastRing > 100 || frac === 1) { lastRing = now; ring.style.setProperty('--ld', Math.round(126 * (1 - frac))); }
     }
     clearTimeout(watchdog);
+    if (token !== heroToken) return;
     ring.style.setProperty('--ld', 0);
-    video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
+    seekBusy = false; pendingTime = null;
+    const oldUrl = heroUrl;
+    video.src = heroUrl = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
+    if (oldUrl) URL.revokeObjectURL(oldUrl);
     video.preload = 'auto';
     video.load();
     // iOS Safari only paints seeked frames once a muted inline video has played; prime it, then hand back to scroll
     const primed = video.play();
     if (primed) primed.then(() => { video.pause(); requestSeek(heroProgress() * (video.duration - 0.05)); }).catch(() => {});
     video.addEventListener('canplay', () => {
+      if (token !== heroToken) return;
       requestSeek(heroProgress() * (video.duration - 0.05));
       stage.classList.add('video-ready');
       setTimeout(() => ring.style.opacity = '0', 400);
     }, { once: true });
   }
+  // Rotating a phone or resizing a window across the tall/wide line swaps to the other cut, same frame
+  heroTall.addEventListener('change', () => {
+    if (!started || stage.classList.contains('video-failed')) return;
+    stage.classList.remove('video-ready'); ring.style.opacity = '';
+    loadHeroBlob().catch(failVideo);
+  });
   function failVideo() {
     stage.classList.add('video-failed');
     posterLayer.style.backgroundImage = "url('assets/hero-ending.jpg')";
@@ -832,6 +863,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   // and the cup sits dead centre, so it survives the portrait crop.
   const GATES = ['(prefers-reduced-motion: reduce)'];
   let scrubOn = false;
+  stops.push({ el: hero, stage, rests: [0, 0.485, 1], tol: 0.08, on: () => scrubOn });   // one stop per line of copy
   function enableScrub() {
     if (scrubOn) return; scrubOn = true;
     initHeroOnce();
@@ -918,7 +950,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   const locStage = locs.querySelector('.locs-stage');
   const chapters = [...locs.querySelectorAll('.loc-ch')].map((el, i) => ({
     el, fig: el.querySelector('.loc-fig'), info: el.querySelector('.loc-info'),
-    c: { in: -1, out: -1, io: -1, ii: -1 }, live: null
+    c: { in: -1, out: -1, io: -1, ii: -1 }
   }));
   const N = chapters.length;
   const links = [...locs.querySelectorAll('.locs-index a')];
@@ -944,8 +976,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       setVar(ch.el, '--out', out, ch.c, 'out');
       setVar(ch.el, '--io', io, ch.c, 'io');
       setVar(ch.el, '--ii', ii, ch.c, 'ii');
-      const live = inn > 0.001 && out < 0.999;             // promote layers only while they move or show
-      if (live !== ch.live) { ch.live = live; ch.el.classList.toggle('live', live); }
     });
     fills.forEach((f, i) => {
       const lo = i === 0 ? 0 : i - 0.5, hi = i === N - 1 ? N - 1 : i + 0.5;
@@ -968,7 +998,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
   let storyOn = false, sx = 0, stx = 0, sraf = null, sLast = 0, storyVisible = false;
   function storyTarget() {
-    const range = track.offsetHeight - innerHeight;
+    const range = track.offsetHeight - locStage.offsetHeight;
     if (range <= 0) return 0;
     return clamp(-track.getBoundingClientRect().top / range, 0, 1) * (N - 1);
   }
@@ -984,11 +1014,17 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     if (sraf === null && storyVisible) { sraf = requestAnimationFrame(stick); locStage.dataset.animationActive = '1'; }
   }
   new IntersectionObserver(es => { storyVisible = es[0].isIntersecting; if (storyVisible && storyOn) onStoryScroll(); }, { rootMargin: '200px 0px' }).observe(track);
+  // Decode all four storefronts before the section arrives, so no photo is decoded mid-wipe
+  const warm = new IntersectionObserver(es => {
+    if (!es[0].isIntersecting) return; warm.disconnect();
+    locs.querySelectorAll('.loc-fig img').forEach(img => { img.loading = 'eager'; if (img.decode) img.decode().catch(() => {}); });
+  }, { rootMargin: '150% 0px' });
+  warm.observe(track);
 
   function enableStory() {
     if (storyOn) return; storyOn = true;
     locs.classList.add('pinned');
-    chapters.forEach(ch => { ch.c = { in: -1, out: -1, io: -1, ii: -1 }; ch.live = null; ch.el.style.zIndex = chapters.indexOf(ch) + 1; });
+    chapters.forEach(ch => { ch.c = { in: -1, out: -1, io: -1, ii: -1 }; ch.el.style.zIndex = chapters.indexOf(ch) + 1; });
     fills.forEach(f => f.v = -1); routes.forEach(r => r.v = -1); active = -1;
     sx = stx = storyTarget();
     renderStory(sx);
@@ -1002,7 +1038,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     if (sraf !== null) { cancelAnimationFrame(sraf); sraf = null; }
     locStage.dataset.animationActive = '0';
     locs.classList.remove('pinned');
-    chapters.forEach(ch => { ['--in', '--out', '--io', '--ii'].forEach(v => ch.el.style.removeProperty(v)); ch.el.style.zIndex = ''; ch.el.inert = false; ch.el.classList.remove('live'); });
+    chapters.forEach(ch => { ['--in', '--out', '--io', '--ii'].forEach(v => ch.el.style.removeProperty(v)); ch.el.style.zIndex = ''; ch.el.inert = false; });
     fills.forEach(f => f.el.style.setProperty('--fill', 1));
     routes.forEach(r => r.el.style.strokeDashoffset = 0);
     links.forEach(l => { l.classList.remove('on'); l.removeAttribute('aria-current'); });
@@ -1018,11 +1054,12 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   links.forEach((l, i) => l.addEventListener('click', e => {
     if (!storyOn) return;
     e.preventDefault();
-    const range = track.offsetHeight - innerHeight;
+    const range = track.offsetHeight - locStage.offsetHeight;
     const top = track.getBoundingClientRect().top + scrollY + range * (i / (N - 1));
     scrollTo({ top: Math.round(top), behavior: 'smooth' });
   }));
   applyStoryMode();
+  stops.push({ el: track, stage: locStage, rests: [0, 1 / 3, 2 / 3, 1], tol: 0.28 / 3, on: () => storyOn });
 
   /* ---------- Fellow exploded view: scroll-scrubbed, four colorways ----------
      Two stacked video elements: a new colour loads into the hidden one, seeks to the current frame,
@@ -1042,7 +1079,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       if (!fxBlobs.has(u)) fxBlobs.set(u, fetch(u).then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); }).then(b => URL.createObjectURL(b)));
       return fxBlobs.get(u);
     };
-    const fxProgress = () => { const range = fxTrack.offsetHeight - innerHeight; return range > 0 ? clamp(-fxTrack.getBoundingClientRect().top / range, 0, 1) : 0; };
+    const fxProgress = () => { const range = fxTrack.offsetHeight - fxStage.offsetHeight; return range > 0 ? clamp(-fxTrack.getBoundingClientRect().top / range, 0, 1) : 0; };
     const seekState = fxVids.map(() => ({ busy: false, pending: null }));
     function fxSeek(i, t) {
       const v = fxVids[i], st = seekState[i];
@@ -1108,6 +1145,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       if (fxVisible) fxStart();
     }, { rootMargin: '100% 0px' }).observe(fxTrack);
     fxReduce.addEventListener('change', () => { if (fxReduce.matches) { removeEventListener('scroll', fxOnScroll); fxStill(); } else if (fxVisible) fxStart(); });
+    stops.push({ el: fxTrack, stage: fxStage, rests: [0, 0.54, 1], tol: 0.06, on: () => !fxReduce.matches });   // the animation's three held poses
     fxNarrow.addEventListener('change', () => { fxVids.forEach(v => { v.classList.remove('on'); v.removeAttribute('src'); }); fxActive = 0; if (fxStarted && !fxReduce.matches) fxLoad(); else fxStill(); });
   }
 
@@ -1116,8 +1154,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
      shrink back and dim by how many cards cover them. Reverses exactly on scroll-up. */
   const press = document.getElementById('press');
   if (press) {
-    const pTrack = press.querySelector('.press-track');
-    const pCards = [...press.querySelectorAll('.pcard')].map(el => ({ el, e: -1, d: -1, live: null }));
+    const pTrack = press.querySelector('.press-track'), pStage = press.querySelector('.press-stage');
+    const pCards = [...press.querySelectorAll('.pcard')].map(el => ({ el, e: -1, d: -1 }));
     const pCount = press.querySelector('.press-count b'), PN = pCards.length;
     const pEnter = (x, i) => i === 0 ? 1 : smoothstep(x, i - 0.8, i - 0.2);
     let pActive = -1;
@@ -1127,8 +1165,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         const e = es[i]; let d = 0; for (let j = i + 1; j < PN; j++) d += es[j];
         if (Math.abs(e - c.e) > 0.002) { c.e = e; c.el.style.setProperty('--e', e.toFixed(3)); }
         if (Math.abs(d - c.d) > 0.002) { c.d = d; c.el.style.setProperty('--d', d.toFixed(3)); }
-        const live = e > 0.001 && e < 0.999 || (d > 0.001 && d < PN - 1);
-        if (live !== c.live) { c.live = live; c.el.classList.toggle('live', live); }
       });
       const a = clamp(Math.round(x), 0, PN - 1);
       if (a !== pActive) {
@@ -1138,7 +1174,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       }
     }
     let pOn = false, px = 0, ptx = 0, praf = null, pLast = 0, pVisible = false;
-    const pTarget = () => { const range = pTrack.offsetHeight - innerHeight; return range > 0 ? clamp(-pTrack.getBoundingClientRect().top / range, 0, 1) * (PN - 1) : 0; };
+    const pTarget = () => { const range = pTrack.offsetHeight - pStage.offsetHeight; return range > 0 ? clamp(-pTrack.getBoundingClientRect().top / range, 0, 1) * (PN - 1) : 0; };
     function pTick(now) {
       const dt = Math.min(100, now - (pLast || now)); pLast = now;
       px += (ptx - px) * (1 - Math.pow(1 - 0.16, dt / 16.667));
@@ -1148,9 +1184,14 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     }
     function pOnScroll() { ptx = pTarget(); if (praf === null && pVisible) praf = requestAnimationFrame(pTick); }
     new IntersectionObserver(es => { pVisible = es[0].isIntersecting; if (pVisible && pOn) pOnScroll(); }, { rootMargin: '200px 0px' }).observe(pTrack);
+    const pWarm = new IntersectionObserver(es => {
+      if (!es[0].isIntersecting) return; pWarm.disconnect();
+      press.querySelectorAll('.pcard img').forEach(img => { img.loading = 'eager'; if (img.decode) img.decode().catch(() => {}); });
+    }, { rootMargin: '150% 0px' });
+    pWarm.observe(pTrack);
     function pEnable() {
       if (pOn) return; pOn = true; press.classList.add('pinned');
-      pCards.forEach(c => { c.e = -1; c.d = -1; c.live = null; }); pActive = -1;
+      pCards.forEach(c => { c.e = -1; c.d = -1; }); pActive = -1;
       px = ptx = pTarget(); pRender(px);
       addEventListener('scroll', pOnScroll, { passive: true }); addEventListener('resize', pOnScroll, { passive: true });
     }
@@ -1159,14 +1200,59 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       removeEventListener('scroll', pOnScroll); removeEventListener('resize', pOnScroll);
       if (praf !== null) { cancelAnimationFrame(praf); praf = null; }
       press.classList.remove('pinned');
-      pCards.forEach(c => { c.el.style.removeProperty('--e'); c.el.style.removeProperty('--d'); c.el.inert = false; c.el.classList.remove('live'); });
+      pCards.forEach(c => { c.el.style.removeProperty('--e'); c.el.style.removeProperty('--d'); c.el.inert = false; });
       pCount.textContent = '01'; pActive = -1;
     }
     const P_OFF = ['(prefers-reduced-motion: reduce)', '(max-height: 560px)'].map(q => matchMedia(q));
     const pApply = () => P_OFF.some(m => m.matches) ? pDisable() : pEnable();
     P_OFF.forEach(m => m.addEventListener('change', pApply));
     pApply();
+    stops.push({ el: pTrack, stage: pStage, rests: [0, 1 / 3, 2 / 3, 1], tol: 0.2 / 3, on: () => pOn });
   }
+
+  /* ---------- Touch screens: one swipe, one step ----------
+     When a swipe comes to rest inside a pinned story, the page glides on to the next step in the direction
+     of the swipe (or back, for a nudge too small to count). Scrolling stays native: nothing runs while a
+     finger is down, and ordinary sections are never snapped. */
+  const touchUI = matchMedia('(hover: none) and (pointer: coarse)');
+  const MIN_SWIPE = 40;
+  let touching = false, yStart = scrollY, idle = null;
+  function snapTarget(y) {
+    const d = Math.abs(y - yStart) < MIN_SWIPE ? 0 : Math.sign(y - yStart);
+    const live = stops.filter(s => s.on()).map(s => ({ s, top: s.el.getBoundingClientRect().top + y, range: s.el.offsetHeight - s.stage.offsetHeight }))
+      .filter(g => g.range > 0).sort((a, b) => a.top - b.top);
+    for (let i = 0; i < live.length; i++) {
+      const { s, top, range } = live[i], end = top + range;
+      if (y >= top - MIN_SWIPE && y <= end + MIN_SWIPE) {
+        // A swipe that began inside the story (or within a nudge of it) moves on from where it began;
+        // one that began outside lands on the first step it reaches
+        const p = clamp((y - top) / range, 0, 1), from = yStart >= top - MIN_SWIPE && yStart <= end + MIN_SWIPE, p0 = clamp((yStart - top) / range, 0, 1);
+        let r;
+        if (d > 0) r = s.rests.find(v => v >= p - s.tol && (!from || v > p0 + 0.01)) ?? s.rests[s.rests.length - 1];
+        else if (d < 0) r = [...s.rests].reverse().find(v => v <= p + s.tol && (!from || v < p0 - 0.01)) ?? s.rests[0];
+        else r = s.rests.reduce((a, v) => Math.abs(v - p) < Math.abs(a - p) ? v : a);
+        return top + r * range;
+      }
+      // Two pinned stories back to back (the hero into Locations): never rest half way between them
+      const next = live[i + 1];
+      if (next && y > end && y < next.top && next.top - end <= s.stage.offsetHeight * 1.1) return d > 0 ? next.top : d < 0 ? end : (y - end < next.top - y ? end : next.top);
+    }
+    return null;
+  }
+  function settle() {
+    idle = null;
+    if (touching || !touchUI.matches) return;
+    const y = scrollY, t = snapTarget(y);
+    yStart = y;
+    if (t === null || Math.abs(t - y) < 2) return;
+    yStart = Math.round(t);
+    scrollTo({ top: Math.round(t), behavior: 'smooth' });
+  }
+  const arm = () => { clearTimeout(idle); idle = setTimeout(settle, 140); };
+  addEventListener('touchstart', () => { touching = true; clearTimeout(idle); yStart = scrollY; }, { passive: true });
+  addEventListener('touchend', e => { if (e.touches.length) return; touching = false; arm(); }, { passive: true });
+  addEventListener('touchcancel', () => { touching = false; arm(); }, { passive: true });
+  addEventListener('scroll', () => { if (!touching && touchUI.matches) arm(); }, { passive: true });
 
   /* ---------- Missing images fall back to the panel tone, never a broken icon ---------- */
   document.querySelectorAll('main img').forEach(img => img.addEventListener('error', () => { img.style.visibility = 'hidden'; }));
