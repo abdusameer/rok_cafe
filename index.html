@@ -267,21 +267,37 @@ section.block{padding:clamp(72px,11vw,150px) var(--gutter)}
   .fx-beat[data-last]{display:block;opacity:1}
 }
 
-/* Media */
-.media{display:grid;grid-template-columns:minmax(200px,1fr) 3fr;gap:clamp(24px,4vw,64px)}
-.media h2{font-size:clamp(26px,2.4vw,34px)}
-.media .sub{margin-top:8px;color:var(--text-secondary)}
-.cards{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
-.card{scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;min-height:320px;padding:22px;border-radius:14px;text-decoration:none;background:#dfe4d2;position:relative;overflow:hidden;transition:transform .5s var(--ease-out)}
-.card:nth-child(2){background:#e8e2d6}
-.card:nth-child(3){background:#d3dcc2}
-.card:nth-child(4){background:#e4e6dc}
-.card:hover{transform:translateY(-4px)}
-.card .num{font-family:var(--display);font-weight:300;font-size:clamp(64px,6vw,96px);line-height:.9;letter-spacing:-.04em;color:var(--accent)}
-.card .t{font-size:18px;line-height:1.25;margin-top:12px}
-.card .src{display:flex;justify-content:space-between;align-items:baseline;color:var(--text-secondary);margin-top:18px}
-.card .arrow{transition:transform .45s var(--ease-out)}
-.card:hover .arrow{transform:translate(3px,-3px)}
+/* Press: a scroll story. Base = a plain grid of photo cards (no JS, reduced motion, short screens).
+   .pinned = the stage holds and each card slides up over the last, like a deck being dealt. */
+.press{padding:clamp(72px,11vw,150px) var(--gutter)}
+.press-head h2{font-size:clamp(26px,2.4vw,34px)}
+.press-head .sub{margin-top:8px;color:var(--text-secondary);display:flex;gap:14px;align-items:baseline}
+.press-count{font-size:11px;color:var(--text-secondary)}
+.press-count b{font-weight:400;color:var(--ink)}
+.press-deck{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:32px}
+.pcard{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:340px;border-radius:14px;overflow:hidden;text-decoration:none;color:var(--ink);background:#dfe4d2;transition:transform .5s var(--ease-out)}
+.pcard:nth-child(2){background:#e8e2d6}
+.pcard:nth-child(3){background:#d3dcc2}
+.pcard:nth-child(4){background:#e4e6dc}
+.pcard-img{margin:0;position:relative;overflow:hidden;background:var(--panel)}
+.pcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease-out)}
+.pcard-body{display:flex;flex-direction:column;justify-content:space-between;padding:clamp(20px,2.6vw,40px)}
+.pcard .num{font-family:var(--display);font-weight:300;font-size:clamp(64px,7vw,132px);line-height:.9;letter-spacing:-.04em;color:var(--accent)}
+.pcard .t{font-size:clamp(18px,1.7vw,26px);line-height:1.22;margin-top:12px;max-width:18ch}
+.pcard .src{display:flex;justify-content:space-between;align-items:baseline;color:var(--text-secondary);margin-top:18px}
+.pcard .arrow{transition:transform .45s var(--ease-out)}
+.pcard:hover .arrow{transform:translate(3px,-3px)}
+.pcard:hover .pcard-img img{transform:scale(1.03)}
+.press:not(.pinned) .pcard:hover{transform:translateY(-4px)}
+.press.pinned{padding:0}
+.press.pinned .press-track{height:380vh}
+.press.pinned .press-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;padding:clamp(92px,12vh,120px) var(--gutter) clamp(24px,5vh,48px);display:grid;grid-template-rows:auto minmax(0,1fr)}
+.press.pinned .press-deck{position:relative;display:block;margin-top:52px;min-height:0}   /* room for the stacked cards peeking above */
+.press.pinned .pcard{position:absolute;left:50%;top:0;width:min(1080px,100%);height:100%;max-height:640px;min-height:0;transform-origin:50% 0;
+  transform:translateX(-50%) translateY(calc((1 - var(--e,1)) * 115%)) translateY(calc(var(--d,0) * -14px)) scale(calc(1 - var(--d,0) * .045));
+  box-shadow:0 34px 60px -34px rgba(20,18,15,.38);transition:none}
+.press.pinned .pcard::after{content:"";position:absolute;inset:0;background:#141512;opacity:min(.5,calc(var(--d,0) * .18));pointer-events:none}
+.press.pinned .pcard.live{will-change:transform}
 
 /* Girls Inc. */
 .girls{background:var(--panel);display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:center}
@@ -327,7 +343,8 @@ footer .base{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 .menu-btn{display:none}
 
 @media (max-width:980px){
-  .media,.faq{grid-template-columns:1fr}
+  .faq{grid-template-columns:1fr}
+  .press-deck{grid-template-columns:1fr}
   .loc-ch{grid-template-columns:1fr;align-content:start}
   .locs.pinned .loc-ch{gap:20px}
   .locs.pinned .loc-fig{aspect-ratio:16/9;width:min(100%,calc((100vh - 430px) * 16 / 9));width:min(100%,calc((100svh - 430px) * 16 / 9))}
@@ -375,8 +392,14 @@ footer .base{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
   .fellow .btn{background:transparent;color:var(--ink);border-radius:2px;box-shadow:inset 0 0 0 1px var(--ink);min-width:130px;text-transform:uppercase}
   .fellow .btn:hover{background:var(--ink);color:var(--canvas)}
   /* Media: cards stacked */
-  .cards{grid-template-columns:1fr;overflow:visible}
-  .card{min-height:240px}
+  .pcard{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .pcard-img{aspect-ratio:4/3}
+  .pcard .num{font-size:clamp(56px,16vw,88px)}
+  .press.pinned .press-stage{padding:84px var(--gutter) 16px}
+  .press.pinned .press-deck{margin-top:50px}
+  .press.pinned .pcard{grid-template-rows:minmax(0,1fr) auto;max-height:none}
+  .press.pinned .pcard-img{aspect-ratio:auto}
+  .press.pinned .pcard-body{padding:18px 20px 20px}
   /* Uji: words over the tea field */
   .uji{display:block;min-height:0}
   .uji .field{aspect-ratio:3/4}
@@ -576,28 +599,44 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
   </section>
 
-  <section class="block media reveal" aria-labelledby="media-h">
-    <div data-part>
-      <h2 id="media-h">Media</h2>
-      <p class="sub">Latest Articles</p>
-    </div>
-    <div class="cards" data-part>
-      <a class="card" href="https://www.instagram.com/p/DR2goIvAcR2/" target="_blank" rel="noopener">
-        <span class="num">No.3</span>
-        <div><p class="t">World’s No.3 Coffee &amp; Tea 2025</p><p class="src mono"><span>Beli</span><span class="arrow" aria-hidden="true">↗</span></p></div>
-      </a>
-      <a class="card" href="https://www.theinfatuation.com/los-angeles/guides/best-matcha-los-angeles" target="_blank" rel="noopener">
-        <span class="num">Best</span>
-        <div><p class="t">The Best Matcha Lattes in Los Angeles</p><p class="src mono"><span>The Infatuation</span><span class="arrow" aria-hidden="true">↗</span></p></div>
-      </a>
-      <a class="card" href="https://www.instagram.com/p/DR70Q5OEYPU/" target="_blank" rel="noopener">
-        <span class="num">No.1</span>
-        <div><p class="t">No.1 Matcha Spot in Los Angeles</p><p class="src mono"><span>Beli</span><span class="arrow" aria-hidden="true">↗</span></p></div>
-      </a>
-      <a class="card" href="http://www.koreatimes.com/article/1567796" target="_blank" rel="noopener">
-        <span class="num">No.1</span>
-        <div><p class="t">No.1 Matcha Spot in Los Angeles</p><p class="src mono"><span>The Korea Times</span><span class="arrow" aria-hidden="true">↗</span></p></div>
-      </a>
+  <section class="press reveal" id="press" aria-labelledby="media-h">
+    <div class="press-track">
+      <div class="press-stage">
+        <div class="press-head" data-part>
+          <h2 id="media-h">Media</h2>
+          <p class="sub">Latest Articles <span class="press-count mono" aria-hidden="true"><b>01</b> / 04</span></p>
+        </div>
+        <div class="press-deck">
+          <a class="pcard" href="https://www.instagram.com/p/DR2goIvAcR2/" target="_blank" rel="noopener">
+            <figure class="pcard-img"><img src="assets/press-no3.jpg" alt="Iced matcha latte in a rōk cup with a bamboo whisk behind it" loading="lazy" width="1000" height="1250"></figure>
+            <div class="pcard-body">
+              <span class="num">No.3</span>
+              <div><p class="t">World’s No.3 Coffee &amp; Tea 2025</p><p class="src mono"><span>Beli</span><span class="arrow" aria-hidden="true">↗</span></p></div>
+            </div>
+          </a>
+          <a class="pcard" href="https://www.theinfatuation.com/los-angeles/guides/best-matcha-los-angeles" target="_blank" rel="noopener">
+            <figure class="pcard-img"><img src="assets/press-best.jpg" alt="A rōk matcha latte with a bright green top on a dark marble table" loading="lazy" width="1000" height="1250"></figure>
+            <div class="pcard-body">
+              <span class="num">Best</span>
+              <div><p class="t">The Best Matcha Lattes in Los Angeles</p><p class="src mono"><span>The Infatuation</span><span class="arrow" aria-hidden="true">↗</span></p></div>
+            </div>
+          </a>
+          <a class="pcard" href="https://www.instagram.com/p/DR70Q5OEYPU/" target="_blank" rel="noopener">
+            <figure class="pcard-img"><img src="assets/press-no1-beli.jpg" alt="A rōk cup of iced matcha standing on a mound of matcha powder" loading="lazy" width="1000" height="1250"></figure>
+            <div class="pcard-body">
+              <span class="num">No.1</span>
+              <div><p class="t">No.1 Matcha Spot in Los Angeles</p><p class="src mono"><span>Beli</span><span class="arrow" aria-hidden="true">↗</span></p></div>
+            </div>
+          </a>
+          <a class="pcard" href="http://www.koreatimes.com/article/1567796" target="_blank" rel="noopener">
+            <figure class="pcard-img"><img src="assets/press-no1-koreatimes.jpg" alt="Finished rōk matcha lattes lined up on the pickup counter" loading="lazy" width="1000" height="1250"></figure>
+            <div class="pcard-body">
+              <span class="num">No.1</span>
+              <div><p class="t">No.1 Matcha Spot in Los Angeles</p><p class="src mono"><span>The Korea Times</span><span class="arrow" aria-hidden="true">↗</span></p></div>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -638,7 +677,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
   <div class="base">
     <span>© 2026 rōk coffee and tea. Los Angeles.</span>
-    <span>The hero video and drink photos on this site are AI-generated. The Fellow 3D view is a reconstruction from product photos.</span>
+    <span>The hero video, drink and press photos on this site are AI-generated. The Fellow 3D view is a reconstruction from product photos.</span>
   </div>
 </footer>
 
@@ -1070,6 +1109,63 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     }, { rootMargin: '100% 0px' }).observe(fxTrack);
     fxReduce.addEventListener('change', () => { if (fxReduce.matches) { removeEventListener('scroll', fxOnScroll); fxStill(); } else if (fxVisible) fxStart(); });
     fxNarrow.addEventListener('change', () => { fxVids.forEach(v => { v.classList.remove('on'); v.removeAttribute('src'); }); fxActive = 0; if (fxStarted && !fxReduce.matches) fxLoad(); else fxStill(); });
+  }
+
+  /* ---------- Press: scroll story, one card dealt over the last ----------
+     x runs 0..N-1 across the pinned track; card i slides in over [i - .8, i - .2]; cards beneath it
+     shrink back and dim by how many cards cover them. Reverses exactly on scroll-up. */
+  const press = document.getElementById('press');
+  if (press) {
+    const pTrack = press.querySelector('.press-track');
+    const pCards = [...press.querySelectorAll('.pcard')].map(el => ({ el, e: -1, d: -1, live: null }));
+    const pCount = press.querySelector('.press-count b'), PN = pCards.length;
+    const pEnter = (x, i) => i === 0 ? 1 : smoothstep(x, i - 0.8, i - 0.2);
+    let pActive = -1;
+    function pRender(x) {
+      const es = pCards.map((c, i) => pEnter(x, i));
+      pCards.forEach((c, i) => {
+        const e = es[i]; let d = 0; for (let j = i + 1; j < PN; j++) d += es[j];
+        if (Math.abs(e - c.e) > 0.002) { c.e = e; c.el.style.setProperty('--e', e.toFixed(3)); }
+        if (Math.abs(d - c.d) > 0.002) { c.d = d; c.el.style.setProperty('--d', d.toFixed(3)); }
+        const live = e > 0.001 && e < 0.999 || (d > 0.001 && d < PN - 1);
+        if (live !== c.live) { c.live = live; c.el.classList.toggle('live', live); }
+      });
+      const a = clamp(Math.round(x), 0, PN - 1);
+      if (a !== pActive) {
+        pActive = a;
+        pCards.forEach((c, i) => { c.el.inert = i !== a; });
+        pCount.textContent = String(a + 1).padStart(2, '0');
+      }
+    }
+    let pOn = false, px = 0, ptx = 0, praf = null, pLast = 0, pVisible = false;
+    const pTarget = () => { const range = pTrack.offsetHeight - innerHeight; return range > 0 ? clamp(-pTrack.getBoundingClientRect().top / range, 0, 1) * (PN - 1) : 0; };
+    function pTick(now) {
+      const dt = Math.min(100, now - (pLast || now)); pLast = now;
+      px += (ptx - px) * (1 - Math.pow(1 - 0.16, dt / 16.667));
+      if (Math.abs(ptx - px) < 0.0008) { px = ptx; praf = null; pLast = 0; }
+      else praf = requestAnimationFrame(pTick);
+      pRender(px);
+    }
+    function pOnScroll() { ptx = pTarget(); if (praf === null && pVisible) praf = requestAnimationFrame(pTick); }
+    new IntersectionObserver(es => { pVisible = es[0].isIntersecting; if (pVisible && pOn) pOnScroll(); }, { rootMargin: '200px 0px' }).observe(pTrack);
+    function pEnable() {
+      if (pOn) return; pOn = true; press.classList.add('pinned');
+      pCards.forEach(c => { c.e = -1; c.d = -1; c.live = null; }); pActive = -1;
+      px = ptx = pTarget(); pRender(px);
+      addEventListener('scroll', pOnScroll, { passive: true }); addEventListener('resize', pOnScroll, { passive: true });
+    }
+    function pDisable() {
+      if (!pOn) return; pOn = false;
+      removeEventListener('scroll', pOnScroll); removeEventListener('resize', pOnScroll);
+      if (praf !== null) { cancelAnimationFrame(praf); praf = null; }
+      press.classList.remove('pinned');
+      pCards.forEach(c => { c.el.style.removeProperty('--e'); c.el.style.removeProperty('--d'); c.el.inert = false; c.el.classList.remove('live'); });
+      pCount.textContent = '01'; pActive = -1;
+    }
+    const P_OFF = ['(prefers-reduced-motion: reduce)', '(max-height: 560px)'].map(q => matchMedia(q));
+    const pApply = () => P_OFF.some(m => m.matches) ? pDisable() : pEnable();
+    P_OFF.forEach(m => m.addEventListener('change', pApply));
+    pApply();
   }
 
   /* ---------- Missing images fall back to the panel tone, never a broken icon ---------- */
