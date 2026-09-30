@@ -724,7 +724,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   // fewer pixels per frame means each scroll step decodes about twice as fast. Both files have a keyframe
   // every 4 frames and no B-frames, so any scroll position is at most a few decoded frames away.
   const heroTall = matchMedia('(max-aspect-ratio: 2/3)');
-  const heroFile = () => heroTall.matches ? { url: 'assets/hero-scrub-portrait.mp4', bytes: 4492453 } : { url: 'assets/hero-scrub.mp4', bytes: 5940623 };
+  const heroFile = () => heroTall.matches ? { url: 'assets/hero-scrub-portrait.mp4', bytes: 5283294 } : { url: 'assets/hero-scrub.mp4', bytes: 6996722 };
   const bands = [...document.querySelectorAll('.band')].map(el => ({
     el, a: +el.dataset.a, b: +el.dataset.b, first: 'first' in el.dataset, last: 'last' in el.dataset,
     cta: el.querySelector('.cta-row'), op: -1, k: -1, vis: null
